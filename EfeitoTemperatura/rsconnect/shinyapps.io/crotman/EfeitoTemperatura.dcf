@@ -1,0 +1,12 @@
+name: EfeitoTemperatura
+title: EfeitoTemperatura
+username:
+account: crotman
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 1168008
+bundleId: 2400555
+url: https://crotman.shinyapps.io/EfeitoTemperatura/
+when: 1568056205.20185
+asMultiple: FALSE
+asStatic: FALSE

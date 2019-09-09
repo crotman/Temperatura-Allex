@@ -9,8 +9,9 @@
 
 library(shiny)
 library(lubridate)
+library(tidyverse)
 
-# dados_original <- readRDS("tudo.rds")
+dados_original <- readRDS("tudo.rds")
 
 dados <- dados_original %>% 
     filter(!is.na(GWh)) %>% 
@@ -39,7 +40,7 @@ dados <- dados_original %>%
 ui <- fluidPage(
 
     # Application title
-    titlePanel("Old Faithful Geyser Data"),
+    titlePanel("Temperatura x Carga"),
 
     # Sidebar with a slider input for number of bins 
     sidebarLayout(
@@ -89,7 +90,7 @@ server <- function(input, output) {
                 )
             )
         ggplot(dados_escolhidos, aes(                 
-                                     x = tempminima, 
+                                     x = temp_comp_media, 
                                      y = erro, 
                                      color = estacao_ano)) +
             geom_point(
