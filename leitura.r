@@ -3,6 +3,8 @@ library(magrittr)
 library(furrr)
 library(tictoc)
 library(readxl)
+library(lubridate )
+
 
 le_um_arquivo <- function(arquivo)
 {
@@ -83,12 +85,50 @@ conteudo_inmet_diario_comp <- conteudo_inmet_diario_comp_temperatura %>%
     conteudo_inmet_diario_umidade_e_vento, 
     by = c("estacao","data","hora")
   ) %>%
-  select(-name.x, -value.x, - name.y, - value.y) %T>% 
-  View()
+  select(-name.x, -value.x, - name.y, - value.y) 
               
 dados_clima <- bind_rows(conteudo_inmet_diario,
                    conteudo_inmet_diario_comp
-                   )  
+                   ) %>% 
+  mutate(
+    tempmaxima = as.numeric(tempmaxima) ,
+    tempminima = as.numeric(tempminima) ,
+    temp_comp_media = as.numeric(temp_comp_media) ,
+    umidade_relativa_media = as.numeric(umidade_relativa_media) ,
+    velocidade_do_vento_media = as.numeric(velocidade_do_vento_media) 
+  ) %>% 
+  group_by(estacao, data) %>% 
+  summarise(
+    tempmaxima = mean(tempmaxima, na.rm = TRUE),
+    tempminima = mean(tempminima, na.rm = TRUE),
+    temp_comp_media = mean(temp_comp_media, na.rm = TRUE),
+    umidade_relativa_media = mean(umidade_relativa_media, na.rm = TRUE),
+    velocidade_do_vento_media = mean(velocidade_do_vento_media, na.rm = TRUE)
+  ) %>% 
+  ungroup() %>% 
+  mutate(data = dmy(data) )
+
+
+dados_carga <- read_excel(
+  "carga_consumo/dados.xlsx", 
+  sheet = "CargaDiaria") %>% 
+  mutate(Data = date(Data))
+
+dados_estacoes <- read_excel(
+  "carga_consumo/dados.xlsx", 
+  sheet = "Dim_estacoes")
+
+
+tudo <- dados_clima %>% 
+  left_join(dados_estacoes, by = c("estacao" = "Cod.Estacao" )) %>% 
+  left_join(dados_carga, 
+            by = c(
+              "data" = "Data",
+              "Subsistema"
+              )
+            )
+
+saveRDS(tudo, "tudo.rds")
 
 
 
