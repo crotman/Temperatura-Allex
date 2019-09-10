@@ -7,15 +7,16 @@
 #    http://shiny.rstudio.com/
 #
 
-library(shiny)
-library(lubridate)
 library(tidyverse)
+library(lubridate)
+library(shiny)
 
-dados_original <- readRDS("tudo.rds")
+
+dados_original <- readRDS("principais.rds")
 
 dados <- dados_original %>% 
     filter(!is.na(GWh)) %>% 
-    rename(municipio = Município) %>% 
+    rename(municipio = `Município`) %>% 
     group_by(estacao) %>% 
     arrange(data) %>% 
     filter(between(wday(data),2,6)) %>%

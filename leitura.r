@@ -131,6 +131,11 @@ tudo <- dados_clima %>%
 saveRDS(tudo, "tudo.rds")
 
 
+principais <- tudo %>% 
+  filter(`Município` %in% c("RIO DE JANEIRO", "SAO PAULO", "CURITIBA", "PORTO ALEGRE", "MANAUS")) %>% 
+  saveRDS("principais.rds")
+  
+
 
 
 
