@@ -132,7 +132,7 @@ saveRDS(tudo, "tudo.rds")
 
 
 principais <- tudo %>% 
-  filter(`Município` %in% c("RIO DE JANEIRO", "SAO PAULO", "CURITIBA", "PORTO ALEGRE", "MANAUS")) %>% 
+  filter(`Município` %in% c("RIO DE JANEIRO", "SÃO PAULO", "CURITIBA", "PORTO ALEGRE", "MANAUS")) %>% 
   saveRDS("principais.rds")
   
 

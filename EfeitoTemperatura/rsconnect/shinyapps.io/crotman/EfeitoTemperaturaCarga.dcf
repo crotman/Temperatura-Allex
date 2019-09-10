@@ -5,9 +5,9 @@ account: crotman
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 1169706
-bundleId: 2401344
+bundleId: 2403089
 url: https://crotman.shinyapps.io/EfeitoTemperaturaCarga/
-when: 1568074578.4046
+when: 1568125608.13165
 asMultiple: FALSE
 asStatic: FALSE
 ignoredFiles: tudo.rds

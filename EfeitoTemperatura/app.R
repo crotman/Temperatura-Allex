@@ -70,11 +70,14 @@ server <- function(input, output) {
             filter(year(data) > 2003)
         
         ggplot(dados_escolhidos, aes(x = data, group = estacao)) +
+            geom_vline(aes(color = temp_comp_media, xintercept = data ), alpha = 0.5  ) +
+            scale_color_gradient2(low = 'lightblue', high = 'red', midpoint = 23) +
             geom_line(aes( y = GWh), color = "blue") +
-            geom_line(aes( y = carga_amena), color = "red") +
+            #geom_line(aes( y = carga_amena), color = "red") +
             geom_line(aes( y = carga_ewma), color = "black", size = 2 ) +
             scale_y_continuous(limits = c(0,NA)) +
-            theme_light()
+            labs(x = "Data", y = "Carga", color = "Temperatura") +
+            theme_light() 
 
     })
     
