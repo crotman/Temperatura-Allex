@@ -3,7 +3,7 @@ library(magrittr)
 library(furrr)
 library(tictoc)
 library(readxl)
-library(lubridate )
+library(lubridate)
 
 
 le_um_arquivo <- function(arquivo)

@@ -10,9 +10,45 @@
 library(tidyverse)
 library(lubridate)
 library(shiny)
+library(readxl)
 
 
-dados_original <- readRDS("principais.rds")
+dados_original <- readRDS("tudo.rds")
+
+
+####  FERIADOS ####
+
+feriados_nacionais <- read_excel("Feriados.xlsx", "feriados_nacionais") %>% 
+    mutate(data = ymd(Data)) %>% 
+    select(data)
+
+feriados_nacionais_fixos <- read_excel("Feriados.xlsx", "feriados_nacionais_fixos") %>% 
+    crossing(tibble(ano = 2000:2100)) %>% 
+    mutate(data = ymd(paste(ano,`Mês`, Dia, sep = "-" ))) %>% 
+    select(data)
+
+feriados_regionais <- read_excel("Feriados.xlsx", "feriados_regionais") %>% 
+    crossing(tibble(ano = 2000:2100)) %>% 
+    mutate(data = ymd(paste(ano,`Mês`, Dia, sep = "-" ))) %>% 
+    select(UF, data)
+
+UF <- dados_original %>% 
+    select(UF) %>% 
+    distinct() %>%
+    bind_rows(tibble(UF = "RO")) 
+
+feriados <- feriados_nacionais %>% 
+    bind_rows(feriados_nacionais_fixos) %>%
+    crossing(UF) %>% 
+    bind_rows(feriados_regionais) %>% 
+    filter(!is.na(data))
+
+#### CARGA ####
+
+carga_uf <- read_excel("CargaGlobal_UF.xlsx") %>% 
+    mutate(data = dmy(Data)) %>% 
+    select(UF, data, carga_uf = CargaGlobal_MWmedio) 
+
 
 dados <- dados_original %>% 
     filter(!is.na(GWh)) %>% 
@@ -20,14 +56,20 @@ dados <- dados_original %>%
     group_by(estacao) %>% 
     arrange(data) %>% 
     filter(between(wday(data),2,6)) %>%
+    anti_join(feriados, by = c("data", "UF")) %>% 
     mutate(alpha = 1/0.995) %>% 
     mutate(fator_ewma  = cumprod(alpha)*1e-50 ) %>% 
-    select(estacao, data, GWh, fator_ewma, tempmaxima, tempminima, temp_comp_media, municipio ) %>% 
+    select(estacao, UF, data, GWh, fator_ewma, tempmaxima, tempminima, temp_comp_media, municipio ) %>% 
     arrange(estacao, data) %>% 
-    mutate(carga_amena = if_else(tempmaxima < 28 & tempminima > 15, GWh, 0  ) ) %>% 
+    left_join(carga_uf, by = c("UF", "data")) %>% 
+    mutate(
+        carga_amena = if_else(tempmaxima < 28 & tempminima > 18, GWh, 0  ) ,
+        carga_amena_uf = if_else(tempmaxima < 28 & tempminima > 18, carga_uf, 0  ) 
+    ) %>% 
     mutate(fator_nao_NA = if_else(carga_amena == 0, 0, fator_ewma)) %>% 
     mutate(
         carga_amena = if_else( is.na(carga_amena), 0, carga_amena),
+        carga_amena_uf = if_else( is.na(carga_amena), 0, carga_amena),
         fator_nao_NA = if_else( is.na(fator_nao_NA), 0, fator_nao_NA)
     ) %>% 
     mutate(
@@ -36,6 +78,7 @@ dados <- dados_original %>%
     mutate(carga_amena = if_else(carga_amena == 0, NA_real_, carga_amena)) %>% 
     mutate(erro = (GWh - carga_ewma)/carga_ewma)
     
+
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
