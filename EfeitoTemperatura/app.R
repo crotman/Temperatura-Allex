@@ -52,8 +52,9 @@ carga_uf <- read_excel("CargaGlobal_UF.xlsx") %>%
 
 
 dados <- dados_original %>% 
-    filter(year(data) > 2015 ) %>% 
+    filter(year(data) > 2005 ) %>% 
     rename(municipio = `Município`) %>% 
+    filter(municipio %in% c("RIO DE JANEIRO")) %>% 
     group_by(estacao) %>% 
     arrange(data) %>% 
     filter(between(wday(data),2,6)) %>%
@@ -146,7 +147,7 @@ server <- function(input, output) {
             geom_line(aes( y = carga_ewma_uf), color = "black", size = 2 ) +
             scale_y_continuous(limits = c(0,NA)) +
             labs(x = "Data", y = "Carga", color = "Temperatura") +
-            theme_light() 
+            theme_minimal() 
 
     })
     
@@ -171,7 +172,7 @@ server <- function(input, output) {
                 alpha = 0.3
                 ) +
             geom_smooth(group = 1, color = "black") +
-            theme_light()
+            theme_minimal()
         
     })
 
@@ -197,7 +198,7 @@ server <- function(input, output) {
                 alpha = 0.3
             ) +
             geom_smooth(group = 1, color = "black") +
-            theme_light()
+            theme_minimal()
         
     })
     
@@ -213,7 +214,8 @@ server <- function(input, output) {
         
         ggplot(dados_escolhidos) +
             geom_line(aes(x = data, y =  temp_comp_media )) +
-            geom_line(aes(x = data, y =  temp_ewma ), color = "blue")
+            geom_line(aes(x = data, y =  temp_ewma ), color = "blue") +
+            theme_minimal()
         
         
     })
@@ -223,7 +225,6 @@ server <- function(input, output) {
 
 
 
-# teste do push para github
 
 
 # Run the application 
